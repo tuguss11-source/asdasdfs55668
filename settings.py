@@ -1,6 +1,11 @@
 # 📁 settings.py - GÜNCEL
 import sys
 import os
+from dotenv import load_dotenv
+load_dotenv()
+
+BINANCE_API_KEY = os.getenv('BINANCE_API_KEY')
+BINANCE_SECRET_KEY = os.getenv('BINANCE_SECRET_KEY')
 
 # PROJE KÖK DİZİNİNİ BUL
 current_dir = os.path.dirname(os.path.abspath(__file__))
