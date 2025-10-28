@@ -32,23 +32,23 @@ class AdvancedPortfolioManager:
     
     def init_advanced_database(self):
         """Gelişmiş veritabanını başlat"""
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
         
         # Gelişmiş Portfolio tablosu
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS portfolio (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                symbol TEXT NOT NULL,
-                entry_price REAL NOT NULL,
-                quantity REAL NOT NULL,
-                entry_date TEXT NOT NULL,
-                stop_loss REAL,
-                take_profit REAL,
-                leverage TEXT DEFAULT '1x',
-                status TEXT DEFAULT 'active',
-                unrealized_pnl REAL DEFAULT 0,
-                current_price REAL
+            cursor.execute('''
+                 CREATE TABLE IF NOT EXISTS portfolio (
+                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+                 symbol TEXT NOT NULL,
+                 entry_price REAL NOT NULL,
+                 quantity REAL NOT NULL,
+                    entry_date TEXT NOT NULL,
+                 stop_loss REAL,
+                 take_profit REAL,
+                 leverage TEXT DEFAULT '1x',
+                 status TEXT DEFAULT 'active',
+                    unrealized_pnl REAL DEFAULT 0,
+                 current_price REAL
             )
         ''')
         
@@ -105,8 +105,8 @@ class AdvancedPortfolioManager:
     
     def add_to_portfolio(self, symbol, entry_price, quantity, stop_loss=None, take_profit=None, leverage="1x"):
         """Portföye gelişmiş pozisyon ekle"""
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
+        with sqlite3.connect(self.db_path) as conn:
+         cursor = conn.cursor()
         
         cursor.execute('''
             INSERT INTO portfolio (symbol, entry_price, quantity, entry_date, stop_loss, take_profit, leverage, current_price)
@@ -119,8 +119,8 @@ class AdvancedPortfolioManager:
     
     def update_portfolio_prices(self, price_data: Dict):
         """Portföy fiyatlarını güncelle"""
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
         
         for symbol, current_price in price_data.items():
             cursor.execute('''
@@ -134,10 +134,10 @@ class AdvancedPortfolioManager:
     
     def get_portfolio(self):
         """Gelişmiş portföy verilerini getir"""
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
         
-        cursor.execute('''
+            cursor.execute('''
             SELECT *, 
                    (current_price - entry_price) * quantity as unrealized_pnl,
                    ((current_price - entry_price) / entry_price * 100) as pnl_percent
@@ -176,12 +176,12 @@ class AdvancedPortfolioManager:
     
     def close_position(self, symbol, exit_price):
         """Pozisyonu gelişmiş şekilde kapat"""
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
         
         # Aktif pozisyonu bul
-        cursor.execute('SELECT * FROM portfolio WHERE symbol = ? AND status = "active"', (symbol,))
-        position = cursor.fetchone()
+            cursor.execute('SELECT * FROM portfolio WHERE symbol = ? AND status = "active"', (symbol,))
+            position = cursor.fetchone()
         
         if position:
             entry_price = position[2]
@@ -214,10 +214,10 @@ class AdvancedPortfolioManager:
     
     def get_trade_history(self, limit=100):
         """Trade geçmişini getir"""
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
         
-        cursor.execute('''
+            cursor.execute('''
             SELECT * FROM trade_history 
             ORDER BY timestamp DESC 
             LIMIT ?
@@ -229,8 +229,8 @@ class AdvancedPortfolioManager:
     
     def get_performance_stats(self, days=30):
         """Gelişmiş performans istatistiklerini getir"""
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
+        with sqlite3.connect(self.db_path) as conn:
+             cursor = conn.cursor()
         
         # Son X günün tarihini hesapla
         since_date = (datetime.now() - timedelta(days=days)).isoformat()
@@ -278,10 +278,10 @@ class AdvancedPortfolioManager:
     
     def add_ai_signal(self, symbol, signal, strength, ai_score, price, strategy_breakdown):
         """AI sinyal geçmişine ekle"""
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
         
-        cursor.execute('''
+            cursor.execute('''
             INSERT INTO ai_signal_history (symbol, signal, strength, ai_score, timestamp, price, strategy_breakdown)
             VALUES (?, ?, ?, ?, ?, ?, ?)
         ''', (symbol, signal, strength, ai_score, datetime.now().isoformat(), price, json.dumps(strategy_breakdown)))
@@ -291,8 +291,8 @@ class AdvancedPortfolioManager:
     
     def get_ai_signal_history(self, symbol=None, limit=50):
         """AI sinyal geçmişini getir"""
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
         
         if symbol:
             cursor.execute('''
